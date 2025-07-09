@@ -23,23 +23,13 @@ pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
 # English translations of verbs
 verb_translations = {
-    "galėti": "to be able",
-    "sėdėti": "to sit",
-    "atsisėsti": "to sit down",
-    "kainuoti": "to cost",
-    "nešti": "to carry",
-    "atsiskaityti": "to pay / to settle",
-    "norėti": "to want",
-    "skaityti": "to read",
-    "dirbti": "to work",
-    "rašyti": "to write",
-    "klausyti": "to listen",
-    "klausti": "to ask",
-    "būti": "to be",
-    "turėti": "to have"
+    "galėti": "to be able", "sėdėti": "to sit", "atsisėsti": "to sit down", "kainuoti": "to cost",
+    "nešti": "to carry", "atsiskaityti": "to pay / to settle", "norėti": "to want", "skaityti": "to read",
+    "dirbti": "to work", "rašyti": "to write", "klausyti": "to listen", "klausti": "to ask",
+    "būti": "to be", "turėti": "to have"
 }
 
-# Initialize session state
+# Session state init
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.current = 0
@@ -47,6 +37,7 @@ if "score" not in st.session_state:
     st.session_state.question = {}
     st.session_state.options = []
     st.session_state.correct = ""
+    st.session_state.feedback = ""
 
 def new_question():
     verb = random.choice(list(conjugations.keys()))
@@ -62,19 +53,21 @@ def new_question():
     st.session_state.question = {"verb": verb, "pronoun": pronoun}
     st.session_state.options = options
     st.session_state.correct = correct
+    st.session_state.feedback = ""
 
 def restart_game():
     st.session_state.score = 0
     st.session_state.current = 0
+    st.session_state.feedback = ""
     new_question()
 
-# UI
+# Title and instructions
 st.title("🔤 Lithuanian Verb Conjugation Quiz")
-st.markdown("Choose the correct present tense form for the verb and pronoun:")
+st.markdown("Choose the correct **present tense** form for the **verb and pronoun** given:")
 
-# Game logic
+# Show result
 if st.session_state.current >= st.session_state.total:
-    st.success(f"🎉 Game Over! Your score: {st.session_state.score} / {st.session_state.total * 10} points.")
+    st.success(f"🎉 Game Over! Your final score: **{st.session_state.score} / {st.session_state.total * 10}** points.")
     if st.button("🔄 Play Again"):
         restart_game()
         st.rerun()
@@ -82,6 +75,7 @@ else:
     if not st.session_state.question:
         new_question()
 
+    # Show question
     q = st.session_state.question
     verb_lt = q["verb"]
     pronoun_lt = q["pronoun"]
@@ -90,14 +84,19 @@ else:
     st.subheader(f"Veiksmažodis: **{verb_lt}**, Įvardis: **{pronoun_lt}**")
     st.caption(f"🔍 *{verb_lt}* means **{verb_en}** in English.")
 
+    # Show options
     for opt in st.session_state.options:
         if st.button(opt):
             if opt == st.session_state.correct:
                 st.session_state.score += 10
-                st.success("✅ Teisingai! Puiku! 😊")
+                st.session_state.feedback = "✅ Teisingai! Puiku! 😊"
             else:
-                st.error(f"❌ Neteisingai. Teisingas atsakymas: **{st.session_state.correct}**")
+                st.session_state.feedback = f"❌ Neteisingai. Teisingas atsakymas: **{st.session_state.correct}**"
             st.session_state.current += 1
-            if st.session_state.current < st.session_state.total:
-                new_question()
             st.rerun()
+
+    # Feedback + score after response
+    if st.session_state.feedback:
+        st.markdown(st.session_state.feedback)
+        st.markdown(f"📊 Tavo taškai: **{st.session_state.score} / {st.session_state.current * 10}**")
+
