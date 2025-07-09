@@ -78,6 +78,7 @@ def reset_game():
     st.session_state.finished = False
     new_question()
 
+# Start first question if needed
 if st.session_state.current == 0 and not st.session_state.finished:
     new_question()
 
@@ -90,15 +91,20 @@ if not st.session_state.finished:
     st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
 
     if not st.session_state.show_feedback:
-        st.session_state.selected_answer = st.radio(
+        # Radio to pick answer
+        selected = st.radio(
             "Choose the correct form:",
             q["options"],
             key=f"answer_{st.session_state.current}"
         )
+        # Save selection immediately
+        st.session_state.selected_answer = selected
+
         if st.button("Submit Answer"):
             if st.session_state.selected_answer is None:
                 st.session_state.feedback_text = "⚠️ Please select an answer before submitting."
                 st.session_state.show_feedback = True
+                st.experimental_rerun()
             else:
                 if st.session_state.selected_answer.strip().lower() == q["correct"].strip().lower():
                     st.session_state.score += 10
@@ -107,17 +113,18 @@ if not st.session_state.finished:
                 else:
                     st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
                 st.session_state.show_feedback = True
+                st.experimental_rerun()
 
     else:
-        # Show locked radio with selected answer
+        # Show radio disabled with selected answer locked
         st.radio(
             "Choose the correct form:",
             q["options"],
-            index=q["options"].index(st.session_state.selected_answer),
+            index=q["options"].index(st.session_state.selected_answer) if st.session_state.selected_answer in q["options"] else 0,
             key=f"answer_{st.session_state.current}",
             disabled=True
         )
-        # Show feedback
+        # Show feedback message
         if "⚠️" in st.session_state.feedback_text:
             st.warning(st.session_state.feedback_text)
         elif "✅" in st.session_state.feedback_text:
@@ -125,6 +132,7 @@ if not st.session_state.finished:
         else:
             st.error(st.session_state.feedback_text)
 
+        # Next question button
         if "⚠️" not in st.session_state.feedback_text:
             if st.button("Next Question"):
                 st.session_state.current += 1
