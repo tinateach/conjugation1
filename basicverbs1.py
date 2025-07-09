@@ -1,11 +1,7 @@
 import streamlit as st
 import random
 
-st.set_page_config(
-    page_title="🔤 Lithuanian Verb Conjugation Quiz",
-    page_icon="🇱🇹",
-    layout="centered"
-)
+st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
 
 # Initialize session state variables
 for key, default in {
@@ -58,16 +54,17 @@ def new_question():
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    possible_pronouns = [p for p in pronouns if p != pronoun]
-    distractors = set()
-    while len(distractors) < 2 and possible_pronouns:
-        dp = random.choice(possible_pronouns)
-        possible_pronouns.remove(dp)
-        distractor = conjugations[verb][dp]
-        if distractor != correct:
-            distractors.add(distractor)
+    # Get distractors from other pronouns for same verb
+    distractors = []
+    for p in pronouns:
+        if p != pronoun:
+            form = conjugations[verb][p]
+            if form != correct and form not in distractors:
+                distractors.append(form)
+    # Pick 2 random distractors
+    distractors = random.sample(distractors, min(2, len(distractors)))
 
-    options = list(distractors) + [correct]
+    options = distractors + [correct]
     random.shuffle(options)
 
     st.session_state.question = {
@@ -99,42 +96,52 @@ if not st.session_state.finished:
     q = st.session_state.question
     st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
 
-    st.session_state.answer = st.radio(
-        "Choose the correct form:",
-        q["options"],
-        key=f"answer_{st.session_state.current}"
-    )
+    # Show options radio if feedback not shown yet, else disable selection
+    if not st.session_state.show_feedback:
+        st.session_state.answer = st.radio(
+            "Choose the correct form:",
+            q["options"],
+            index=0,
+            key=f"answer_{st.session_state.current}"
+        )
 
-    if st.button("Submit Answer") and not st.session_state.show_feedback:
-        if st.session_state.answer is None:
-            st.warning("Please select an answer before submitting.")
-        else:
-            if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
-                st.session_state.score += 10
-                st.session_state.correct_count += 1
-                st.session_state.feedback_text = "✅ Correct!"
+        if st.button("Submit Answer"):
+            if st.session_state.answer is None:
+                st.warning("Please select an answer before submitting.")
             else:
-                st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
-            st.session_state.show_feedback = True
+                if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
+                    st.session_state.score += 10
+                    st.session_state.correct_count += 1
+                    st.session_state.feedback_text = "✅ Correct!"
+                else:
+                    st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
+                st.session_state.show_feedback = True
 
-    if st.session_state.show_feedback:
+    else:
+        # Feedback shown, disable radio but still display selection
+        st.radio(
+            "Choose the correct form:",
+            q["options"],
+            index=q["options"].index(st.session_state.answer),
+            key=f"answer_{st.session_state.current}",
+            disabled=True
+        )
+        # Show feedback
         if "✅" in st.session_state.feedback_text:
             st.success(st.session_state.feedback_text)
         else:
             st.error(st.session_state.feedback_text)
 
         if st.button("Next Question"):
-            # Clear feedback before moving on
             st.session_state.show_feedback = False
             st.session_state.feedback_text = ""
-
+            st.session_state.answer = None
             st.session_state.current += 1
             if st.session_state.current >= TOTAL_QUESTIONS:
                 st.session_state.finished = True
             else:
                 new_question()
-
-            st.experimental_rerun()  # refresh UI immediately to show new question without old feedback
+            st.experimental_rerun()
 
 else:
     st.markdown(f"""
