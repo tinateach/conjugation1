@@ -13,19 +13,9 @@ for key, default in {
     "selected_answer": None,
     "show_feedback": False,
     "feedback_text": "",
-    "needs_rerun": False,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
-
-def request_rerun():
-    # Set flag to request rerun
-    st.session_state["needs_rerun"] = True
-
-def perform_rerun_if_requested():
-    if st.session_state.get("needs_rerun", False):
-        st.session_state["needs_rerun"] = False
-        st.experimental_rerun()
 
 conjugations = {
     "pradėti": {"aš": "pradedu", "tu": "pradedi", "jis/ji": "pradeda", "mes": "pradedame", "jūs": "pradedate", "jie/jos": "pradeda"},
@@ -88,6 +78,7 @@ def reset_game():
     st.session_state.finished = False
     new_question()
 
+# Start first question if needed
 if st.session_state.current == 0 and not st.session_state.finished:
     new_question()
 
@@ -111,7 +102,7 @@ if not st.session_state.finished:
             if st.session_state.selected_answer is None:
                 st.session_state.feedback_text = "⚠️ Please select an answer before submitting."
                 st.session_state.show_feedback = True
-                request_rerun()
+                st.experimental_rerun()  # OK here, inside button handler
             else:
                 if st.session_state.selected_answer.strip().lower() == q["correct"].strip().lower():
                     st.session_state.score += 10
@@ -120,7 +111,7 @@ if not st.session_state.finished:
                 else:
                     st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
                 st.session_state.show_feedback = True
-                request_rerun()
+                st.experimental_rerun()  # OK here, inside button handler
     else:
         st.radio(
             "Choose the correct form:",
@@ -144,7 +135,7 @@ if not st.session_state.finished:
                 else:
                     new_question()
                 st.session_state.show_feedback = False
-                request_rerun()
+                st.experimental_rerun()  # OK here, inside button handler
 
 else:
     st.markdown(f"""
@@ -155,7 +146,4 @@ else:
 
     if st.button("🔄 Play Again"):
         reset_game()
-        request_rerun()
-
-# Finally perform rerun if requested
-perform_rerun_if_requested()
+        st.experimental_rerun()  # OK here, inside button handler
