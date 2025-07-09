@@ -3,37 +3,112 @@ import random
 
 st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
 
-# Lithuanian present tense conjugations
+# Lithuanian present tense conjugations for requested verbs
 conjugations = {
-    "galėti":    {"aš": "galiu",    "tu": "gali",    "jis/ji": "gali",    "mes": "galime",  "jūs": "galite",  "jie/jos": "gali"},
-    "sėdėti":    {"aš": "sėdžiu",  "tu": "sėdi",   "jis/ji": "sėdi",   "mes": "sėdime", "jūs": "sėdite", "jie/jos": "sėdi"},
-    "atsisėsti": {"aš": "atsisėdu","tu": "atsisėdi","jis/ji": "atsisėdi","mes": "atsisėdame","jūs": "atsisėdate","jie/jos": "atsisėda"},
-    "kainuoti":  {"aš": "kainuoju","tu": "kainuoji","jis/ji": "kainuoja","mes": "kainuojame","jūs": "kainuojate","jie/jos": "kainuoja"},
-    "nešti":     {"aš": "nešu",    "tu": "neši",   "jis/ji": "neša",   "mes": "nešame",  "jūs": "nešate",  "jie/jos": "neša"},
-    "atsiskaityti": {"aš": "atsiskaitau","tu": "atsiskaiti","jis/ji": "atsiskaito","mes": "atsiskaitome","jūs": "atsiskaitote","jie/jos": "atsiskaito"},
-    "norėti":    {"aš": "noriu",   "tu": "nori",   "jis/ji": "nori",   "mes": "norime",  "jūs": "norite",  "jie/jos": "nori"},
-    "skaityti":  {"aš": "skaitau", "tu": "skaitai","jis/ji": "skaito","mes": "skaitome","jūs": "skaitote","jie/jos": "skaito"},
-    "dirbti":    {"aš": "dirbu",   "tu": "dirbi",  "jis/ji": "dirba",  "mes": "dirbame", "jūs": "dirbate", "jie/jos": "dirba"},
-    "rašyti":    {"aš": "rašau",   "tu": "rašai",  "jis/ji": "rašo",   "mes": "rašome", "jūs": "rašote", "jie/jos": "rašo"},
-    "klausyti":  {"aš": "klausau", "tu": "klausi", "jis/ji": "klauso","mes": "klausome","jūs": "klausote","jie/jos": "klauso"},
-    "klausti":   {"aš": "klausiau","tu": "klausiai","jis/ji": "klausia","mes": "klausiame","jūs": "klausiate","jie/jos": "klausia"},
-    "būti":      {"aš": "esu",    "tu": "esi",    "jis/ji": "yra",    "mes": "esame",   "jūs": "esate",   "jie/jos": "yra"},
-    "turėti":    {"aš": "turiu",  "tu": "turi",   "jis/ji": "turi",   "mes": "turime",  "jūs": "turite",  "jie/jos": "turi"},
+    "pradėti": {
+        "aš": "pradedu",
+        "tu": "pradedi",
+        "jis/ji": "pradeda",
+        "mes": "pradedame",
+        "jūs": "pradedate",
+        "jie/jos": "pradeda"
+    },
+    "daryti": {
+        "aš": "darau",
+        "tu": "darai",
+        "jis/ji": "daro",
+        "mes": "darome",
+        "jūs": "darote",
+        "jie/jos": "daro"
+    },
+    "veikti": {
+        "aš": "veikiu",
+        "tu": "veiki",
+        "jis/ji": "veikia",
+        "mes": "veikiame",
+        "jūs": "veikiate",
+        "jie/jos": "veikia"
+    },
+    "klausti": {
+        "aš": "klausiu",
+        "tu": "klausi",
+        "jis/ji": "klausia",
+        "mes": "klausiame",
+        "jūs": "klausiate",
+        "jie/jos": "klausia"
+    },
+    "elgtis": {
+        "aš": "elgiuosi",
+        "tu": "elgiesi",
+        "jis/ji": "elgiasi",
+        "mes": "elgiamės",
+        "jūs": "elgiatės",
+        "jie/jos": "elgiasi"
+    },
+    "aiškinti": {
+        "aš": "aiškinu",
+        "tu": "aiškini",
+        "jis/ji": "aiškina",
+        "mes": "aiškiname",
+        "jūs": "aiškinate",
+        "jie/jos": "aiškina"
+    },
+    "rašyti": {
+        "aš": "rašau",
+        "tu": "rašai",
+        "jis/ji": "rašo",
+        "mes": "rašome",
+        "jūs": "rašote",
+        "jie/jos": "rašo"
+    },
+    "suprasti": {
+        "aš": "suprantu",
+        "tu": "supranti",
+        "jis/ji": "supranta",
+        "mes": "suprantame",
+        "jūs": "suprantate",
+        "jie/jos": "supranta"
+    },
+    "būti": {
+        "aš": "esu",
+        "tu": "esi",
+        "jis/ji": "yra",
+        "mes": "esame",
+        "jūs": "esate",
+        "jie/jos": "yra"
+    },
+    "turėti": {
+        "aš": "turiu",
+        "tu": "turi",
+        "jis/ji": "turi",
+        "mes": "turime",
+        "jūs": "turite",
+        "jie/jos": "turi"
+    },
+    "žinoti": {
+        "aš": "žinau",
+        "tu": "žinai",
+        "jis/ji": "žino",
+        "mes": "žinome",
+        "jūs": "žinote",
+        "jie/jos": "žino"
+    },
 }
 
 pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
 TOTAL_QUESTIONS = 10
 
-# --- Initialize state ---
+# Initialize session state variables
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.correct_count = 0
     st.session_state.current = 0
-    st.session_state.question = {}
     st.session_state.finished = False
+    st.session_state.feedback = ""
+    st.session_state.show_feedback = False
+    st.session_state.question = {}
 
-# --- Functions ---
 def new_question():
     verb = random.choice(list(conjugations.keys()))
     pronoun = random.choice(pronouns)
@@ -42,8 +117,7 @@ def new_question():
     options = set([correct])
     all_forms = set(conjugations[verb].values())
     while len(options) < 3:
-        choice = random.choice(list(all_forms))
-        options.add(choice)
+        options.add(random.choice(list(all_forms)))
     options = list(options)
     random.shuffle(options)
 
@@ -53,6 +127,9 @@ def new_question():
         "correct": correct,
         "options": options
     }
+    st.session_state.selected_answer = None
+    st.session_state.show_feedback = False
+    st.session_state.feedback = ""
 
 def reset_game():
     st.session_state.score = 0
@@ -61,36 +138,40 @@ def reset_game():
     st.session_state.finished = False
     new_question()
 
-# --- Main ---
-st.markdown("<h1 style='color: red; text-align: center;'>🔤 Lithuanian Verb Conjugation Quiz</h1>", unsafe_allow_html=True)
-
-if st.session_state.current == 0:
+if st.session_state.current == 0 and not st.session_state.finished:
     new_question()
+
+st.markdown("<h1 style='color: red; text-align: center;'>🔤 Lithuanian Verb Conjugation Quiz</h1>", unsafe_allow_html=True)
 
 if not st.session_state.finished:
     q = st.session_state.question
     st.markdown(f"### Veiksmažodis **„{q['verb']}“** su įvardžiu **„{q['pronoun']}“**", unsafe_allow_html=True)
 
-    for opt in q["options"]:
-        col1, col2, col3 = st.columns([2, 3, 2])
-        with col2:
-            if st.button(opt):
-                if opt == q["correct"]:
-                    st.success("✅ Teisingai! Puiku! 😊")
-                    st.session_state.score += 10
-                    st.session_state.correct_count += 1
-                else:
-                    st.error(f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**")
-                    # Optionally, deduct points:
-                    # st.session_state.score -= 5
+    answer = st.radio("Pasirinkite teisingą formą:", q["options"], key="answer")
 
-                st.session_state.current += 1
+    if st.button("Patikrinti atsakymą"):
+        if answer == q["correct"]:
+            st.session_state.score += 10
+            st.session_state.correct_count += 1
+            st.session_state.feedback = "✅ Teisingai! Puiku! 😊"
+        else:
+            st.session_state.feedback = f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**"
+        st.session_state.show_feedback = True
 
-                if st.session_state.current >= TOTAL_QUESTIONS:
-                    st.session_state.finished = True
-                else:
-                    new_question()
-                st.stop()
+    if st.session_state.show_feedback:
+        if "✅" in st.session_state.feedback:
+            st.success(st.session_state.feedback)
+        else:
+            st.error(st.session_state.feedback)
+
+        if st.button("Kitas klausimas"):
+            st.session_state.current += 1
+            if st.session_state.current >= TOTAL_QUESTIONS:
+                st.session_state.finished = True
+            else:
+                new_question()
+            st.session_state.show_feedback = False
+            st.experimental_rerun()
 
 else:
     st.markdown(f"""
@@ -98,7 +179,6 @@ else:
     ✅ Teisingų atsakymų: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
     🏆 Surinkta taškų: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
     """, unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([2, 3, 2])
-    with col2:
-        if st.button("🔄 Žaisti iš naujo"):
-            reset_game()
+    if st.button("🔄 Žaisti iš naujo"):
+        reset_game()
+        st.experimental_rerun()
