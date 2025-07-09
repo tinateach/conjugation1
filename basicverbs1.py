@@ -22,7 +22,6 @@ conjugations = {
     "žinoti": {"aš": "žinau", "tu": "žinai", "jis/ji": "žino", "mes": "žinome", "jūs": "žinote", "jie/jos": "žino"},
 }
 
-# Meanings for the infinitives
 meanings = {
     "pradėti": "to start / to begin",
     "daryti": "to do / to make",
@@ -41,7 +40,6 @@ pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
 TOTAL_QUESTIONS = 10
 
-# --- Initialize session state ---
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.correct_count = 0
@@ -57,7 +55,6 @@ def new_question():
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    # Pick other forms of the SAME verb
     possible_pronouns = [p for p in pronouns if p != pronoun]
     distractors = set()
     while len(distractors) < 2 and possible_pronouns:
@@ -97,27 +94,28 @@ st.markdown("<h1 style='color: red; text-align: center;'>🔤 Lithuanian Verb Co
 if not st.session_state.finished:
     q = st.session_state.question
     st.markdown(
-        f"### Veiksmažodis **„{q['verb']}“** (*{q['meaning']}*) su įvardžiu **„{q['pronoun']}“**",
+        f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**",
         unsafe_allow_html=True
     )
 
     st.session_state.answer = st.radio(
-        "Pasirinkite teisingą formą:",
+        "Choose the correct form:",
         q["options"],
         key=f"answer_{st.session_state.current}"
     )
 
-    if st.button("Patikrinti atsakymą"):
-        if st.session_state.answer is None:
-            st.warning("Pasirinkite atsakymą prieš tikrinant.")
-        else:
-            if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
-                st.session_state.score += 10
-                st.session_state.correct_count += 1
-                st.session_state.feedback = "✅ Teisingai! Puiku! 😊"
+    if not st.session_state.show_feedback:
+        if st.button("Check Answer"):
+            if st.session_state.answer is None:
+                st.warning("Please select an answer before checking.")
             else:
-                st.session_state.feedback = f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**"
-            st.session_state.show_feedback = True
+                if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
+                    st.session_state.score += 10
+                    st.session_state.correct_count += 1
+                    st.session_state.feedback = "✅ Correct! Well done! 😊"
+                else:
+                    st.session_state.feedback = f"❌ Incorrect. Correct answer: **{q['correct']}**"
+                st.session_state.show_feedback = True
 
     if st.session_state.show_feedback:
         if "✅" in st.session_state.feedback:
@@ -125,22 +123,9 @@ if not st.session_state.finished:
         else:
             st.error(st.session_state.feedback)
 
-        if st.button("Kitas klausimas"):
+        if st.button("Next Question"):
             st.session_state.current += 1
             if st.session_state.current >= TOTAL_QUESTIONS:
                 st.session_state.finished = True
             else:
                 new_question()
-            st.session_state.show_feedback = False
-            st.experimental_rerun()
-
-else:
-    st.markdown(f"""
-    🎉 **Žaidimas baigtas!**  
-    ✅ Teisingų atsakymų: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
-    🏆 Surinkta taškų: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
-    """, unsafe_allow_html=True)
-
-    if st.button("🔄 Žaisti iš naujo"):
-        reset_game()
-        st.experimental_rerun()
