@@ -7,7 +7,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# Lithuanian present tense conjugations
 conjugations = {
     "pradėti": {"aš": "pradedu", "tu": "pradedi", "jis/ji": "pradeda", "mes": "pradedame", "jūs": "pradedate", "jie/jos": "pradeda"},
     "daryti": {"aš": "darau", "tu": "darai", "jis/ji": "daro", "mes": "darome", "jūs": "darote", "jie/jos": "daro"},
@@ -40,7 +39,6 @@ pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
 TOTAL_QUESTIONS = 10
 
-# --- Initialize session state ---
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.correct_count = 0
@@ -48,13 +46,14 @@ if "score" not in st.session_state:
     st.session_state.finished = False
     st.session_state.question = {}
     st.session_state.answer = None
+    st.session_state.show_feedback = False
+    st.session_state.feedback_text = ""
 
 def new_question():
     verb = random.choice(list(conjugations.keys()))
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    # distractors from the same verb but other pronouns
     possible_pronouns = [p for p in pronouns if p != pronoun]
     distractors = set()
     while len(distractors) < 2 and possible_pronouns:
@@ -75,6 +74,8 @@ def new_question():
         "options": options
     }
     st.session_state.answer = None
+    st.session_state.show_feedback = False
+    st.session_state.feedback_text = ""
 
 def reset_game():
     st.session_state.score = 0
@@ -83,7 +84,6 @@ def reset_game():
     st.session_state.finished = False
     new_question()
 
-# --- Start ---
 if st.session_state.current == 0 and not st.session_state.finished:
     new_question()
 
@@ -91,10 +91,7 @@ st.title("🔤 Lithuanian Verb Conjugation Quiz")
 
 if not st.session_state.finished:
     q = st.session_state.question
-    st.markdown(
-        f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
 
     st.session_state.answer = st.radio(
         "Choose the correct form:",
@@ -104,20 +101,32 @@ if not st.session_state.finished:
 
     if st.button("Check & Next"):
         if st.session_state.answer is None:
-            st.warning("Please select an answer before checking.")
+            st.warning("Please select an answer before continuing.")
         else:
-            if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
-                st.session_state.score += 10
-                st.session_state.correct_count += 1
-                st.success("✅ Correct!")
+            if not st.session_state.show_feedback:
+                # First click: show feedback
+                if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
+                    st.session_state.score += 10
+                    st.session_state.correct_count += 1
+                    st.session_state.feedback_text = "✅ Correct!"
+                else:
+                    st.session_state.feedback_text = f"❌ Incorrect. Correct: **{q['correct']}**"
+                st.session_state.show_feedback = True
             else:
-                st.error(f"❌ Incorrect. Correct: **{q['correct']}**")
+                # Second click: go to next question or finish
+                st.session_state.current += 1
+                if st.session_state.current >= TOTAL_QUESTIONS:
+                    st.session_state.finished = True
+                else:
+                    new_question()
+                st.session_state.show_feedback = False
+                st.session_state.feedback_text = ""
 
-            st.session_state.current += 1
-            if st.session_state.current >= TOTAL_QUESTIONS:
-                st.session_state.finished = True
-            else:
-                new_question()
+    if st.session_state.show_feedback:
+        if "✅" in st.session_state.feedback_text:
+            st.success(st.session_state.feedback_text)
+        else:
+            st.error(st.session_state.feedback_text)
 
 else:
     st.markdown(f"""
