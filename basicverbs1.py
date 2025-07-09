@@ -57,13 +57,13 @@ def new_question():
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    # Distractors from other verbs
+    # Pick other forms of the SAME verb
+    possible_pronouns = [p for p in pronouns if p != pronoun]
     distractors = set()
-    while len(distractors) < 2:
-        random_verb = random.choice(list(conjugations.keys()))
-        if random_verb == verb:
-            continue
-        distractor = conjugations[random_verb][pronoun]
+    while len(distractors) < 2 and possible_pronouns:
+        dp = random.choice(possible_pronouns)
+        possible_pronouns.remove(dp)
+        distractor = conjugations[verb][dp]
         if distractor != correct:
             distractors.add(distractor)
 
@@ -78,7 +78,7 @@ def new_question():
         "correct": correct,
         "options": options
     }
-    st.session_state.answer = None  # ✅ clear selection
+    st.session_state.answer = None
     st.session_state.show_feedback = False
     st.session_state.feedback = ""
 
