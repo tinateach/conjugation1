@@ -3,16 +3,15 @@ import random
 
 st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
 
-# Session state initialization
+# Initialize session state variables
 for key, default in {
     "score": 0,
     "correct_count": 0,
     "current": 0,
     "finished": False,
     "question": {},
-    "answer": None,
+    "selected_answer": None,
     "show_feedback": False,
-    "feedback_text": "",
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
@@ -54,12 +53,8 @@ def new_question():
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    distractors = []
-    for p in pronouns:
-        if p != pronoun:
-            form = conjugations[verb][p]
-            if form != correct and form not in distractors:
-                distractors.append(form)
+    # Distractors from same verb other pronouns
+    distractors = [conjugations[verb][p] for p in pronouns if p != pronoun]
     distractors = random.sample(distractors, min(2, len(distractors)))
 
     options = distractors + [correct]
@@ -70,11 +65,10 @@ def new_question():
         "meaning": meanings[verb],
         "pronoun": pronoun,
         "correct": correct,
-        "options": options
+        "options": options,
     }
-    st.session_state.answer = None
+    st.session_state.selected_answer = None
     st.session_state.show_feedback = False
-    st.session_state.feedback_text = ""
 
 def reset_game():
     st.session_state.score = 0
@@ -95,16 +89,16 @@ if not st.session_state.finished:
     st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
 
     if not st.session_state.show_feedback:
-        st.session_state.answer = st.radio(
+        st.session_state.selected_answer = st.radio(
             "Choose the correct form:",
             q["options"],
-            key=f"answer_{st.session_state.current}"
+            key=f"answer_{st.session_state.current}",
         )
         if st.button("Submit Answer"):
-            if st.session_state.answer is None:
+            if st.session_state.selected_answer is None:
                 st.warning("Please select an answer before submitting.")
             else:
-                if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
+                if st.session_state.selected_answer.strip().lower() == q["correct"].strip().lower():
                     st.session_state.score += 10
                     st.session_state.correct_count += 1
                     st.session_state.feedback_text = "✅ Correct!"
@@ -113,29 +107,27 @@ if not st.session_state.finished:
                 st.session_state.show_feedback = True
 
     else:
-        # Disabled radio with current answer selected
+        # Show locked selection
         st.radio(
             "Choose the correct form:",
             q["options"],
-            index=q["options"].index(st.session_state.answer),
+            index=q["options"].index(st.session_state.selected_answer),
             key=f"answer_{st.session_state.current}",
-            disabled=True
+            disabled=True,
         )
-        # Show feedback distinctly
+        # Show feedback
         if "✅" in st.session_state.feedback_text:
             st.success(st.session_state.feedback_text)
         else:
             st.error(st.session_state.feedback_text)
 
         if st.button("Next Question"):
-            st.session_state.show_feedback = False
-            st.session_state.feedback_text = ""
-            st.session_state.answer = None
             st.session_state.current += 1
             if st.session_state.current >= TOTAL_QUESTIONS:
                 st.session_state.finished = True
             else:
                 new_question()
+            st.session_state.show_feedback = False
             st.experimental_rerun()
 
 else:
@@ -144,7 +136,6 @@ else:
     ✅ Correct answers: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
     🏆 Score: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
     """)
-
     if st.button("🔄 Play Again"):
         reset_game()
         st.experimental_rerun()
