@@ -40,7 +40,7 @@ pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
 TOTAL_QUESTIONS = 10
 
-# --- State ---
+# --- Initialize session state ---
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.correct_count = 0
@@ -48,14 +48,13 @@ if "score" not in st.session_state:
     st.session_state.finished = False
     st.session_state.question = {}
     st.session_state.answer = None
-    st.session_state.feedback = ""
 
-# --- Functions ---
 def new_question():
     verb = random.choice(list(conjugations.keys()))
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
+    # distractors from the same verb but other pronouns
     possible_pronouns = [p for p in pronouns if p != pronoun]
     distractors = set()
     while len(distractors) < 2 and possible_pronouns:
@@ -65,8 +64,7 @@ def new_question():
         if distractor != correct:
             distractors.add(distractor)
 
-    options = list(distractors)
-    options.append(correct)
+    options = list(distractors) + [correct]
     random.shuffle(options)
 
     st.session_state.question = {
@@ -120,7 +118,6 @@ if not st.session_state.finished:
                 st.session_state.finished = True
             else:
                 new_question()
-            st.experimental_rerun()
 
 else:
     st.markdown(f"""
@@ -131,4 +128,3 @@ else:
 
     if st.button("🔄 Play Again"):
         reset_game()
-        st.experimental_rerun()
