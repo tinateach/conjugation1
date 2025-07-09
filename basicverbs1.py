@@ -1,149 +1,113 @@
 import streamlit as st
 import random
 
-st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
-
-# Initialize session state variables with defaults
-for key, default in {
-    "score": 0,
-    "correct_count": 0,
-    "current": 0,
-    "finished": False,
-    "question": {},
-    "selected_answer": None,
-    "show_feedback": False,
-    "feedback_text": "",
-}.items():
-    if key not in st.session_state:
-        st.session_state[key] = default
-
 conjugations = {
-    "pradėti": {"aš": "pradedu", "tu": "pradedi", "jis/ji": "pradeda", "mes": "pradedame", "jūs": "pradedate", "jie/jos": "pradeda"},
-    "daryti": {"aš": "darau", "tu": "darai", "jis/ji": "daro", "mes": "darome", "jūs": "darote", "jie/jos": "daro"},
-    "veikti": {"aš": "veikiu", "tu": "veiki", "jis/ji": "veikia", "mes": "veikiame", "jūs": "veikiate", "jie/jos": "veikia"},
-    "klausti": {"aš": "klausiu", "tu": "klausi", "jis/ji": "klausia", "mes": "klausiame", "jūs": "klausiate", "jie/jos": "klausia"},
-    "elgtis": {"aš": "elgiuosi", "tu": "elgiesi", "jis/ji": "elgiasi", "mes": "elgiamės", "jūs": "elgiatės", "jie/jos": "elgiasi"},
-    "aiškinti": {"aš": "aiškinu", "tu": "aiškini", "jis/ji": "aiškina", "mes": "aiškiname", "jūs": "aiškinate", "jie/jos": "aiškina"},
-    "rašyti": {"aš": "rašau", "tu": "rašai", "jis/ji": "rašo", "mes": "rašome", "jūs": "rašote", "jie/jos": "rašo"},
-    "suprasti": {"aš": "suprantu", "tu": "supranti", "jis/ji": "supranta", "mes": "suprantame", "jūs": "suprantate", "jie/jos": "supranta"},
-    "būti": {"aš": "esu", "tu": "esi", "jis/ji": "yra", "mes": "esame", "jūs": "esate", "jie/jos": "yra"},
-    "turėti": {"aš": "turiu", "tu": "turi", "jis/ji": "turi", "mes": "turime", "jūs": "turite", "jie/jos": "turi"},
-    "žinoti": {"aš": "žinau", "tu": "žinai", "jis/ji": "žino", "mes": "žinome", "jūs": "žinote", "jie/jos": "žino"},
-}
-
-meanings = {
-    "pradėti": "to start / to begin",
-    "daryti": "to do / to make",
-    "veikti": "to act / to operate",
-    "klausti": "to ask",
-    "elgtis": "to behave",
-    "aiškinti": "to explain",
-    "rašyti": "to write",
-    "suprasti": "to understand",
-    "būti": "to be",
-    "turėti": "to have",
-    "žinoti": "to know",
+    "galėti":    {"aš": "galiu",    "tu": "gali",    "jis/ji": "gali",    "mes": "galime",  "jūs": "galite",  "jie/jos": "gali"},
+    "sėdėti":    {"aš": "sėdžiu",  "tu": "sėdi",   "jis/ji": "sėdi",   "mes": "sėdime", "jūs": "sėdite", "jie/jos": "sėdi"},
+    "atsisėsti": {"aš": "atsisėdu","tu": "atsisėdi","jis/ji": "atsisėdi","mes": "atsisėdame","jūs": "atsisėdate","jie/jos": "atsisėda"},
+    "kainuoti":  {"aš": "kainuoju","tu": "kainuoji","jis/ji": "kainuoja","mes": "kainuojame","jūs": "kainuojate","jie/jos": "kainuoja"},
+    "nešti":     {"aš": "nešu",    "tu": "neši",   "jis/ji": "neša",   "mes": "nešame",  "jūs": "nešate",  "jie/jos": "neša"},
+    "atsiskaityti": {"aš": "atsiskaitau","tu": "atsiskaiti","jis/ji": "atsiskaito","mes": "atsiskaitome","jūs": "atsiskaitote","jie/jos": "atsiskaito"},
+    "norėti":    {"aš": "noriu",   "tu": "nori",   "jis/ji": "nori",   "mes": "norime",  "jūs": "norite",  "jie/jos": "nori"},
+    "skaityti":  {"aš": "skaitau", "tu": "skaitai","jis/ji": "skaito","mes": "skaitome","jūs": "skaitote","jie/jos": "skaito"},
+    "dirbti":    {"aš": "dirbu",   "tu": "dirbi",  "jis/ji": "dirba",  "mes": "dirbame", "jūs": "dirbate", "jie/jos": "dirba"},
+    "rašyti":    {"aš": "rašau",   "tu": "rašai",  "jis/ji": "rašo",   "mes": "rašome", "jūs": "rašote", "jie/jos": "rašo"},
+    "klausyti":  {"aš": "klausau", "tu": "klausi", "jis/ji": "klauso","mes": "klausome","jūs": "klausote","jie/jos": "klauso"},
+    "klausti":   {"aš": "klausiau","tu": "klausiai","jis/ji": "klausia","mes": "klausiame","jūs": "klausiate","jie/jos": "klausia"},
+    "būti":      {"aš": "esu",    "tu": "esi",    "jis/ji": "yra",    "mes": "esame",   "jūs": "esate",   "jie/jos": "yra"},
+    "turėti":    {"aš": "turiu",  "tu": "turi",   "jis/ji": "turi",   "mes": "turime",  "jūs": "turite",  "jie/jos": "turi"},
 }
 
 pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
+total_questions = 10
 
-TOTAL_QUESTIONS = 20
+if "score" not in st.session_state:
+    st.session_state.score = 0
+if "current" not in st.session_state:
+    st.session_state.current = 0
+if "question" not in st.session_state:
+    st.session_state.question = None
+if "options" not in st.session_state:
+    st.session_state.options = []
+if "correct_answer" not in st.session_state:
+    st.session_state.correct_answer = ""
+if "answered" not in st.session_state:
+    st.session_state.answered = False
+if "selected_option" not in st.session_state:
+    st.session_state.selected_option = None
 
 def new_question():
     verb = random.choice(list(conjugations.keys()))
     pronoun = random.choice(pronouns)
+    question_text = f'Veiksmažodis „{verb}“ su įvardžiu „{pronoun}“'
     correct = conjugations[verb][pronoun]
 
-    distractors = [conjugations[verb][p] for p in pronouns if p != pronoun]
-    distractors = random.sample(distractors, min(2, len(distractors)))
-
-    options = distractors + [correct]
+    options = set([correct])
+    all_forms = set(conjugations[verb].values())
+    while len(options) < 3:
+        options.add(random.choice(list(all_forms)))
+    options = list(options)
     random.shuffle(options)
 
-    st.session_state.question = {
-        "verb": verb,
-        "meaning": meanings[verb],
-        "pronoun": pronoun,
-        "correct": correct,
-        "options": options,
-    }
-    st.session_state.selected_answer = None
-    st.session_state.show_feedback = False
-    st.session_state.feedback_text = ""
+    st.session_state.question = question_text
+    st.session_state.correct_answer = correct
+    st.session_state.options = options
+    st.session_state.answered = False
+    st.session_state.selected_option = None
 
-def reset_game():
+def check_answer(selected):
+    st.session_state.selected_option = selected
+    st.session_state.answered = True
+    if selected == st.session_state.correct_answer:
+        st.session_state.score += 10
+
+def reset_quiz():
     st.session_state.score = 0
-    st.session_state.correct_count = 0
     st.session_state.current = 0
-    st.session_state.finished = False
-    new_question()
-
-# Start first question if needed
-if st.session_state.current == 0 and not st.session_state.finished:
     new_question()
 
 st.title("🔤 Lithuanian Verb Conjugation Quiz")
 
-if not st.session_state.finished:
-    st.markdown(f"**Question {st.session_state.current + 1} of {TOTAL_QUESTIONS}**")
-
-    q = st.session_state.question
-    st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
-
-    if not st.session_state.show_feedback:
-        selected = st.radio(
-            "Choose the correct form:",
-            q["options"],
-            key=f"answer_{st.session_state.current}"
-        )
-        st.session_state.selected_answer = selected
-
-        if st.button("Submit Answer"):
-            if st.session_state.selected_answer is None:
-                st.session_state.feedback_text = "⚠️ Please select an answer before submitting."
-                st.session_state.show_feedback = True
-                st.experimental_rerun()  # OK here, inside button handler
-            else:
-                if st.session_state.selected_answer.strip().lower() == q["correct"].strip().lower():
-                    st.session_state.score += 10
-                    st.session_state.correct_count += 1
-                    st.session_state.feedback_text = "✅ Correct!"
-                else:
-                    st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
-                st.session_state.show_feedback = True
-                st.experimental_rerun()  # OK here, inside button handler
-    else:
-        st.radio(
-            "Choose the correct form:",
-            q["options"],
-            index=q["options"].index(st.session_state.selected_answer) if st.session_state.selected_answer in q["options"] else 0,
-            key=f"answer_{st.session_state.current}",
-            disabled=True
-        )
-        if "⚠️" in st.session_state.feedback_text:
-            st.warning(st.session_state.feedback_text)
-        elif "✅" in st.session_state.feedback_text:
-            st.success(st.session_state.feedback_text)
-        else:
-            st.error(st.session_state.feedback_text)
-
-        if "⚠️" not in st.session_state.feedback_text:
-            if st.button("Next Question"):
-                st.session_state.current += 1
-                if st.session_state.current >= TOTAL_QUESTIONS:
-                    st.session_state.finished = True
-                else:
-                    new_question()
-                st.session_state.show_feedback = False
-                st.experimental_rerun()  # OK here, inside button handler
-
+if st.session_state.current >= total_questions:
+    st.success(f"🎉 Žaidimas baigtas! Tavo rezultatas: {st.session_state.score} / {total_questions*10} taškų.")
+    if st.button("🔄 Žaisti iš naujo"):
+        reset_quiz()
 else:
-    st.markdown(f"""
-    🎉 **Quiz Finished!**  
-    ✅ Correct answers: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
-    🏆 Score: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
-    """)
+    if st.session_state.question is None or st.session_state.answered:
+        if st.session_state.current > 0:
+            st.session_state.current += 1
+        if st.session_state.current < total_questions:
+            new_question()
 
-    if st.button("🔄 Play Again"):
-        reset_game()
-        st.experimental_rerun()  # OK here, inside button handler
+    st.markdown(f"### Klausimas {st.session_state.current + 1} iš {total_questions}")
+    st.write(st.session_state.question)
+
+    for option in st.session_state.options:
+        if st.session_state.answered:
+            # Show buttons disabled after answering
+            if option == st.session_state.correct_answer:
+                st.button(f"✅ {option}", key=option, disabled=True)
+            elif option == st.session_state.selected_option:
+                st.button(f"❌ {option}", key=option, disabled=True)
+            else:
+                st.button(option, key=option, disabled=True)
+        else:
+            if st.button(option, key=option):
+                check_answer(option)
+                st.experimental_rerun()
+
+    if st.session_state.answered:
+        if st.session_state.selected_option == st.session_state.correct_answer:
+            st.success("Puiku! 😊")
+        else:
+            st.error(f"Neteisingai! Teisingas atsakymas: {st.session_state.correct_answer}")
+
+        if st.session_state.current + 1 == total_questions:
+            if st.button("Baigti žaidimą"):
+                st.session_state.current = total_questions  # mark complete
+                st.experimental_rerun()
+        else:
+            if st.button("Kitas klausimas"):
+                st.session_state.current += 1
+                st.session_state.answered = False
+                st.experimental_rerun()
