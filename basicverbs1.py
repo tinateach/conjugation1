@@ -3,7 +3,7 @@ import random
 
 st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
 
-# Lithuanian present tense conjugations for requested verbs
+# Lithuanian present tense conjugations for your verbs
 conjugations = {
     "pradėti": {
         "aš": "pradedu",
@@ -99,7 +99,7 @@ pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
 TOTAL_QUESTIONS = 10
 
-# Initialize session state variables
+# --- Initialize session state ---
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.correct_count = 0
@@ -150,7 +150,11 @@ if not st.session_state.finished:
     answer = st.radio("Pasirinkite teisingą formą:", q["options"], key="answer")
 
     if st.button("Patikrinti atsakymą"):
-        if answer == q["correct"]:
+        # Debug: show what is compared
+        st.write(f"Pasirinktas: '{answer}' | Teisingas: '{q['correct']}'")
+
+        # Safe compare
+        if answer.strip().lower() == q["correct"].strip().lower():
             st.session_state.score += 10
             st.session_state.correct_count += 1
             st.session_state.feedback = "✅ Teisingai! Puiku! 😊"
