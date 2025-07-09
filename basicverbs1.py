@@ -21,6 +21,24 @@ conjugations = {
 
 pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
+# English translations of verbs
+verb_translations = {
+    "galėti": "to be able",
+    "sėdėti": "to sit",
+    "atsisėsti": "to sit down",
+    "kainuoti": "to cost",
+    "nešti": "to carry",
+    "atsiskaityti": "to pay / to settle",
+    "norėti": "to want",
+    "skaityti": "to read",
+    "dirbti": "to work",
+    "rašyti": "to write",
+    "klausyti": "to listen",
+    "klausti": "to ask",
+    "būti": "to be",
+    "turėti": "to have"
+}
+
 # Initialize session state
 if "score" not in st.session_state:
     st.session_state.score = 0
@@ -50,7 +68,7 @@ def restart_game():
     st.session_state.current = 0
     new_question()
 
-# Title and instructions
+# UI
 st.title("🔤 Lithuanian Verb Conjugation Quiz")
 st.markdown("Choose the correct present tense form for the verb and pronoun:")
 
@@ -59,12 +77,18 @@ if st.session_state.current >= st.session_state.total:
     st.success(f"🎉 Game Over! Your score: {st.session_state.score} / {st.session_state.total * 10} points.")
     if st.button("🔄 Play Again"):
         restart_game()
+        st.rerun()
 else:
     if not st.session_state.question:
         new_question()
 
     q = st.session_state.question
-    st.subheader(f"Veiksmažodis: **{q['verb']}**, Įvardis: **{q['pronoun']}**")
+    verb_lt = q["verb"]
+    pronoun_lt = q["pronoun"]
+    verb_en = verb_translations.get(verb_lt, "unknown")
+
+    st.subheader(f"Veiksmažodis: **{verb_lt}**, Įvardis: **{pronoun_lt}**")
+    st.caption(f"🔍 *{verb_lt}* means **{verb_en}** in English.")
 
     for opt in st.session_state.options:
         if st.button(opt):
@@ -76,4 +100,4 @@ else:
             st.session_state.current += 1
             if st.session_state.current < st.session_state.total:
                 new_question()
-            st.experimental_rerun()
+            st.rerun()
