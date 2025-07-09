@@ -1,4 +1,3 @@
-
 import streamlit as st
 import random
 
@@ -62,4 +61,88 @@ def new_question():
     possible_pronouns = [p for p in pronouns if p != pronoun]
     distractors = set()
     while len(distractors) < 2 and possible_pronouns:
-        dp = rand
+        dp = random.choice(possible_pronouns)
+        possible_pronouns.remove(dp)
+        distractor = conjugations[verb][dp]
+        if distractor != correct:
+            distractors.add(distractor)
+
+    options = list(distractors) + [correct]
+    random.shuffle(options)
+
+    st.session_state.question = {
+        "verb": verb,
+        "meaning": meanings[verb],
+        "pronoun": pronoun,
+        "correct": correct,
+        "options": options
+    }
+    st.session_state.answer = None
+    st.session_state.show_feedback = False
+    st.session_state.feedback_text = ""
+
+def reset_game():
+    st.session_state.score = 0
+    st.session_state.correct_count = 0
+    st.session_state.current = 0
+    st.session_state.finished = False
+    new_question()
+
+if st.session_state.current == 0 and not st.session_state.finished:
+    new_question()
+
+st.title("🔤 Lithuanian Verb Conjugation Quiz")
+
+if not st.session_state.finished:
+    st.markdown(f"**Question {st.session_state.current + 1} of {TOTAL_QUESTIONS}**")
+
+    q = st.session_state.question
+    st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
+
+    st.session_state.answer = st.radio(
+        "Choose the correct form:",
+        q["options"],
+        key=f"answer_{st.session_state.current}"
+    )
+
+    if st.button("Submit Answer") and not st.session_state.show_feedback:
+        if st.session_state.answer is None:
+            st.warning("Please select an answer before submitting.")
+        else:
+            if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
+                st.session_state.score += 10
+                st.session_state.correct_count += 1
+                st.session_state.feedback_text = "✅ Correct!"
+            else:
+                st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
+            st.session_state.show_feedback = True
+
+    if st.session_state.show_feedback:
+        if "✅" in st.session_state.feedback_text:
+            st.success(st.session_state.feedback_text)
+        else:
+            st.error(st.session_state.feedback_text)
+
+        if st.button("Next Question"):
+            # Clear feedback before moving on
+            st.session_state.show_feedback = False
+            st.session_state.feedback_text = ""
+
+            st.session_state.current += 1
+            if st.session_state.current >= TOTAL_QUESTIONS:
+                st.session_state.finished = True
+            else:
+                new_question()
+
+            st.experimental_rerun()  # refresh UI immediately to show new question without old feedback
+
+else:
+    st.markdown(f"""
+    🎉 **Quiz Finished!**  
+    ✅ Correct answers: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
+    🏆 Score: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
+    """)
+
+    if st.button("🔄 Play Again"):
+        reset_game()
+        st.experimental_rerun()
