@@ -40,16 +40,17 @@ pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
 TOTAL_QUESTIONS = 10
 
+# --- State ---
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.correct_count = 0
     st.session_state.current = 0
     st.session_state.finished = False
-    st.session_state.feedback = ""
-    st.session_state.show_feedback = False
     st.session_state.question = {}
     st.session_state.answer = None
+    st.session_state.feedback = ""
 
+# --- Functions ---
 def new_question():
     verb = random.choice(list(conjugations.keys()))
     pronoun = random.choice(pronouns)
@@ -76,8 +77,6 @@ def new_question():
         "options": options
     }
     st.session_state.answer = None
-    st.session_state.show_feedback = False
-    st.session_state.feedback = ""
 
 def reset_game():
     st.session_state.score = 0
@@ -86,10 +85,11 @@ def reset_game():
     st.session_state.finished = False
     new_question()
 
+# --- Start ---
 if st.session_state.current == 0 and not st.session_state.finished:
     new_question()
 
-st.markdown("<h1 style='color: red; text-align: center;'>🔤 Lithuanian Verb Conjugation Quiz</h1>", unsafe_allow_html=True)
+st.title("🔤 Lithuanian Verb Conjugation Quiz")
 
 if not st.session_state.finished:
     q = st.session_state.question
@@ -104,28 +104,31 @@ if not st.session_state.finished:
         key=f"answer_{st.session_state.current}"
     )
 
-    if not st.session_state.show_feedback:
-        if st.button("Check Answer"):
-            if st.session_state.answer is None:
-                st.warning("Please select an answer before checking.")
-            else:
-                if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
-                    st.session_state.score += 10
-                    st.session_state.correct_count += 1
-                    st.session_state.feedback = "✅ Correct! Well done! 😊"
-                else:
-                    st.session_state.feedback = f"❌ Incorrect. Correct answer: **{q['correct']}**"
-                st.session_state.show_feedback = True
-
-    if st.session_state.show_feedback:
-        if "✅" in st.session_state.feedback:
-            st.success(st.session_state.feedback)
+    if st.button("Check & Next"):
+        if st.session_state.answer is None:
+            st.warning("Please select an answer before checking.")
         else:
-            st.error(st.session_state.feedback)
+            if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
+                st.session_state.score += 10
+                st.session_state.correct_count += 1
+                st.success("✅ Correct!")
+            else:
+                st.error(f"❌ Incorrect. Correct: **{q['correct']}**")
 
-        if st.button("Next Question"):
             st.session_state.current += 1
             if st.session_state.current >= TOTAL_QUESTIONS:
                 st.session_state.finished = True
             else:
                 new_question()
+            st.experimental_rerun()
+
+else:
+    st.markdown(f"""
+    🎉 **Quiz Finished!**  
+    ✅ Correct answers: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
+    🏆 Score: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
+    """)
+
+    if st.button("🔄 Play Again"):
+        reset_game()
+        st.experimental_rerun()
