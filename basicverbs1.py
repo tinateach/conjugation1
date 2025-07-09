@@ -7,7 +7,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Initialize all session state variables to avoid AttributeError
+# Initialize session state variables to avoid AttributeError
 for key, default in {
     "score": 0,
     "correct_count": 0,
@@ -51,7 +51,7 @@ meanings = {
 
 pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
 
-TOTAL_QUESTIONS = 10
+TOTAL_QUESTIONS = 20  # Increased from 10 to 20
 
 def new_question():
     verb = random.choice(list(conjugations.keys()))
@@ -88,7 +88,6 @@ def reset_game():
     st.session_state.finished = False
     new_question()
 
-# Start the game by loading first question if none yet
 if st.session_state.current == 0 and not st.session_state.finished:
     new_question()
 
@@ -109,7 +108,7 @@ if not st.session_state.finished:
             st.warning("Please select an answer before continuing.")
         else:
             if not st.session_state.show_feedback:
-                # Show feedback first click
+                # Show feedback on first click
                 if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
                     st.session_state.score += 10
                     st.session_state.correct_count += 1
@@ -118,7 +117,7 @@ if not st.session_state.finished:
                     st.session_state.feedback_text = f"❌ Incorrect. Correct: **{q['correct']}**"
                 st.session_state.show_feedback = True
             else:
-                # Move to next question second click
+                # Go to next question on second click
                 st.session_state.current += 1
                 if st.session_state.current >= TOTAL_QUESTIONS:
                     st.session_state.finished = True
