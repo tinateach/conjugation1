@@ -3,7 +3,16 @@ import random
 
 st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
 
+# --------------------------
+# Handle delayed rerun safely
+# --------------------------
+if st.session_state.get("needs_rerun", False):
+    st.session_state["needs_rerun"] = False
+    st.experimental_rerun()
+
+# --------------------------
 # Initialize session state variables with defaults
+# --------------------------
 for key, default in {
     "score": 0,
     "correct_count": 0,
@@ -97,14 +106,13 @@ if not st.session_state.finished:
             q["options"],
             key=f"answer_{st.session_state.current}"
         )
-        # Save selection immediately
         st.session_state.selected_answer = selected
 
         if st.button("Submit Answer"):
             if st.session_state.selected_answer is None:
                 st.session_state.feedback_text = "⚠️ Please select an answer before submitting."
                 st.session_state.show_feedback = True
-                st.experimental_rerun()
+                st.session_state["needs_rerun"] = True
             else:
                 if st.session_state.selected_answer.strip().lower() == q["correct"].strip().lower():
                     st.session_state.score += 10
@@ -113,7 +121,7 @@ if not st.session_state.finished:
                 else:
                     st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
                 st.session_state.show_feedback = True
-                st.experimental_rerun()
+                st.session_state["needs_rerun"] = True
 
     else:
         # Show radio disabled with selected answer locked
@@ -132,7 +140,6 @@ if not st.session_state.finished:
         else:
             st.error(st.session_state.feedback_text)
 
-        # Next question button
         if "⚠️" not in st.session_state.feedback_text:
             if st.button("Next Question"):
                 st.session_state.current += 1
@@ -141,7 +148,7 @@ if not st.session_state.finished:
                 else:
                     new_question()
                 st.session_state.show_feedback = False
-                st.experimental_rerun()
+                st.session_state["needs_rerun"] = True
 
 else:
     st.markdown(f"""
@@ -152,4 +159,4 @@ else:
 
     if st.button("🔄 Play Again"):
         reset_game()
-        st.experimental_rerun()
+        st.session_state["needs_rerun"] = True
