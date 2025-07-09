@@ -3,7 +3,7 @@ import random
 
 st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
 
-# Initialize session state variables
+# Initialize session state variables if missing
 for key, default in {
     "score": 0,
     "correct_count": 0,
@@ -54,14 +54,13 @@ def new_question():
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    # Get distractors from other pronouns for same verb
+    # Get distractors: other pronouns' forms for the same verb, excluding the correct one
     distractors = []
     for p in pronouns:
         if p != pronoun:
             form = conjugations[verb][p]
             if form != correct and form not in distractors:
                 distractors.append(form)
-    # Pick 2 random distractors
     distractors = random.sample(distractors, min(2, len(distractors)))
 
     options = distractors + [correct]
@@ -96,19 +95,18 @@ if not st.session_state.finished:
     q = st.session_state.question
     st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
 
-    # Show options radio if feedback not shown yet, else disable selection
     if not st.session_state.show_feedback:
+        # Display options with a unique key per question for radio button to track selected answer
         st.session_state.answer = st.radio(
             "Choose the correct form:",
             q["options"],
-            index=0,
             key=f"answer_{st.session_state.current}"
         )
-
         if st.button("Submit Answer"):
             if st.session_state.answer is None:
                 st.warning("Please select an answer before submitting.")
             else:
+                # Compare answers case-insensitive after stripping
                 if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
                     st.session_state.score += 10
                     st.session_state.correct_count += 1
@@ -118,7 +116,7 @@ if not st.session_state.finished:
                 st.session_state.show_feedback = True
 
     else:
-        # Feedback shown, disable radio but still display selection
+        # Show disabled radio with selected answer locked
         st.radio(
             "Choose the correct form:",
             q["options"],
@@ -126,7 +124,7 @@ if not st.session_state.finished:
             key=f"answer_{st.session_state.current}",
             disabled=True
         )
-        # Show feedback
+        # Show feedback text
         if "✅" in st.session_state.feedback_text:
             st.success(st.session_state.feedback_text)
         else:
