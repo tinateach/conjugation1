@@ -1,6 +1,5 @@
 import streamlit as st
 import random
-import time
 
 st.set_page_config(
     page_title="🔤 Lithuanian Verb Conjugation Quiz",
@@ -98,46 +97,40 @@ if not st.session_state.finished:
     st.markdown(f"**Question {st.session_state.current + 1} of {TOTAL_QUESTIONS}**")
 
     q = st.session_state.question
-
     st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
 
-    # Radio for user answer
-    answer = st.radio(
+    st.session_state.answer = st.radio(
         "Choose the correct form:",
         q["options"],
-        index=(q["options"].index(st.session_state.answer) if st.session_state.answer in q["options"] else 0),
         key=f"answer_{st.session_state.current}"
     )
 
-    # If user changed answer and feedback not shown yet, evaluate immediately
-    if answer != st.session_state.answer:
-        st.session_state.answer = answer
-        if not st.session_state.show_feedback:
-            # Check answer correctness
-            if answer.strip().lower() == q["correct"].strip().lower():
+    if st.button("Submit Answer") and not st.session_state.show_feedback:
+        if st.session_state.answer is None:
+            st.warning("Please select an answer before submitting.")
+        else:
+            if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
                 st.session_state.score += 10
                 st.session_state.correct_count += 1
                 st.session_state.feedback_text = "✅ Correct!"
             else:
-                st.session_state.feedback_text = f"❌ Incorrect. Correct: **{q['correct']}**"
+                st.session_state.feedback_text = f"❌ Incorrect. Correct answer: **{q['correct']}**"
             st.session_state.show_feedback = True
-            st.experimental_rerun()  # To immediately show feedback
 
     if st.session_state.show_feedback:
         if "✅" in st.session_state.feedback_text:
             st.success(st.session_state.feedback_text)
         else:
             st.error(st.session_state.feedback_text)
-        # Wait 1.5 seconds then go to next question automatically
-        time.sleep(1.5)
-        st.session_state.current += 1
-        if st.session_state.current >= TOTAL_QUESTIONS:
-            st.session_state.finished = True
-        else:
-            new_question()
-        st.session_state.show_feedback = False
-        st.session_state.feedback_text = ""
-        st.experimental_rerun()
+
+        if st.button("Next Question"):
+            st.session_state.current += 1
+            if st.session_state.current >= TOTAL_QUESTIONS:
+                st.session_state.finished = True
+            else:
+                new_question()
+            st.session_state.show_feedback = False
+            st.session_state.feedback_text = ""
 
 else:
     st.markdown(f"""
@@ -148,4 +141,3 @@ else:
 
     if st.button("🔄 Play Again"):
         reset_game()
-        st.experimental_rerun()
