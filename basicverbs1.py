@@ -3,7 +3,7 @@ import random
 
 st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
 
-# Initialize session state variables if missing
+# Session state initialization
 for key, default in {
     "score": 0,
     "correct_count": 0,
@@ -54,7 +54,6 @@ def new_question():
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    # Get distractors: other pronouns' forms for the same verb, excluding the correct one
     distractors = []
     for p in pronouns:
         if p != pronoun:
@@ -96,7 +95,6 @@ if not st.session_state.finished:
     st.markdown(f"### Verb **„{q['verb']}“** (*{q['meaning']}*) with pronoun **„{q['pronoun']}“**")
 
     if not st.session_state.show_feedback:
-        # Display options with a unique key per question for radio button to track selected answer
         st.session_state.answer = st.radio(
             "Choose the correct form:",
             q["options"],
@@ -106,7 +104,6 @@ if not st.session_state.finished:
             if st.session_state.answer is None:
                 st.warning("Please select an answer before submitting.")
             else:
-                # Compare answers case-insensitive after stripping
                 if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
                     st.session_state.score += 10
                     st.session_state.correct_count += 1
@@ -116,7 +113,7 @@ if not st.session_state.finished:
                 st.session_state.show_feedback = True
 
     else:
-        # Show disabled radio with selected answer locked
+        # Disabled radio with current answer selected
         st.radio(
             "Choose the correct form:",
             q["options"],
@@ -124,7 +121,7 @@ if not st.session_state.finished:
             key=f"answer_{st.session_state.current}",
             disabled=True
         )
-        # Show feedback text
+        # Show feedback distinctly
         if "✅" in st.session_state.feedback_text:
             st.success(st.session_state.feedback_text)
         else:
