@@ -28,6 +28,7 @@ TOTAL_QUESTIONS = 10
 # --- Initialize state ---
 if "score" not in st.session_state:
     st.session_state.score = 0
+    st.session_state.correct_count = 0
     st.session_state.current = 0
     st.session_state.question = {}
     st.session_state.finished = False
@@ -55,6 +56,7 @@ def new_question():
 
 def reset_game():
     st.session_state.score = 0
+    st.session_state.correct_count = 0
     st.session_state.current = 0
     st.session_state.finished = False
     new_question()
@@ -70,16 +72,20 @@ if not st.session_state.finished:
     st.markdown(f"### Veiksmažodis **„{q['verb']}“** su įvardžiu **„{q['pronoun']}“**", unsafe_allow_html=True)
 
     for opt in q["options"]:
-        # 3 columns: empty, button, empty → centers the button
         col1, col2, col3 = st.columns([2, 3, 2])
         with col2:
             if st.button(opt):
                 if opt == q["correct"]:
                     st.success("✅ Teisingai! Puiku! 😊")
                     st.session_state.score += 10
+                    st.session_state.correct_count += 1
                 else:
                     st.error(f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**")
+                    # Optionally, deduct points:
+                    # st.session_state.score -= 5
+
                 st.session_state.current += 1
+
                 if st.session_state.current >= TOTAL_QUESTIONS:
                     st.session_state.finished = True
                 else:
@@ -87,7 +93,11 @@ if not st.session_state.finished:
                 st.stop()
 
 else:
-    st.markdown(f"🎉 **Žaidimas baigtas!** Tavo rezultatas: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}** taškų.", unsafe_allow_html=True)
+    st.markdown(f"""
+    🎉 **Žaidimas baigtas!**  
+    ✅ Teisingų atsakymų: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
+    🏆 Surinkta taškų: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
+    """, unsafe_allow_html=True)
     col1, col2, col3 = st.columns([2, 3, 2])
     with col2:
         if st.button("🔄 Žaisti iš naujo"):
