@@ -60,29 +60,35 @@ def reset_game():
     new_question()
 
 # --- Main ---
-st.markdown("<h1 style='color: red;'>🔤 Lithuanian Verb Conjugation Quiz</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color: red; text-align: center;'>🔤 Lithuanian Verb Conjugation Quiz</h1>", unsafe_allow_html=True)
 
 if st.session_state.current == 0:
     new_question()
 
 if not st.session_state.finished:
     q = st.session_state.question
-    st.markdown(f"## Veiksmažodis **„{q['verb']}“** su įvardžiu **„{q['pronoun']}“**")
+    st.markdown(f"### Veiksmažodis **„{q['verb']}“** su įvardžiu **„{q['pronoun']}“**", unsafe_allow_html=True)
+
     for opt in q["options"]:
-        if st.button(opt):
-            if opt == q["correct"]:
-                st.success("✅ Teisingai! Puiku! 😊")
-                st.session_state.score += 10
-            else:
-                st.error(f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**")
-            st.session_state.current += 1
-            if st.session_state.current >= TOTAL_QUESTIONS:
-                st.session_state.finished = True
-            else:
-                new_question()
-            st.stop()
+        # 3 columns: empty, button, empty → centers the button
+        col1, col2, col3 = st.columns([2, 3, 2])
+        with col2:
+            if st.button(opt):
+                if opt == q["correct"]:
+                    st.success("✅ Teisingai! Puiku! 😊")
+                    st.session_state.score += 10
+                else:
+                    st.error(f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**")
+                st.session_state.current += 1
+                if st.session_state.current >= TOTAL_QUESTIONS:
+                    st.session_state.finished = True
+                else:
+                    new_question()
+                st.stop()
 
 else:
-    st.markdown(f"🎉 **Žaidimas baigtas!** Tavo rezultatas: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}** taškų.")
-    if st.button("🔄 Žaisti iš naujo"):
-        reset_game()
+    st.markdown(f"🎉 **Žaidimas baigtas!** Tavo rezultatas: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}** taškų.", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([2, 3, 2])
+    with col2:
+        if st.button("🔄 Žaisti iš naujo"):
+            reset_game()
