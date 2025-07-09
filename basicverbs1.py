@@ -32,22 +32,26 @@ verb_translations = {
 if "score" not in st.session_state:
     st.session_state.score = 0
     st.session_state.current = 0
-    st.session_state.total = 10
+    st.session_state.total = 20
     st.session_state.question = {}
     st.session_state.options = []
     st.session_state.correct = ""
     st.session_state.feedback = ""
     st.session_state.answered = False
-    st.session_state.asked_verbs = []
+    st.session_state.used_combinations = []
+
+def get_unique_question():
+    all_combinations = [(v, p) for v in conjugations for p in pronouns]
+    available = [pair for pair in all_combinations if pair not in st.session_state.used_combinations]
+    if not available:
+        return None
+    return random.choice(available)
 
 def new_question():
-    remaining_verbs = [v for v in conjugations.keys() if v not in st.session_state.asked_verbs]
-    if not remaining_verbs:
-        remaining_verbs = list(conjugations.keys())
-        st.session_state.asked_verbs = []
-
-    verb = random.choice(remaining_verbs)
-    pronoun = random.choice(pronouns)
+    pair = get_unique_question()
+    if not pair:
+        return
+    verb, pronoun = pair
     correct = conjugations[verb][pronoun]
     options = set([correct])
     all_forms = set(conjugations[verb].values())
@@ -61,12 +65,12 @@ def new_question():
     st.session_state.correct = correct
     st.session_state.feedback = ""
     st.session_state.answered = False
-    st.session_state.asked_verbs.append(verb)
+    st.session_state.used_combinations.append((verb, pronoun))
 
 def restart_game():
     st.session_state.score = 0
     st.session_state.current = 0
-    st.session_state.asked_verbs = []
+    st.session_state.used_combinations = []
     st.session_state.feedback = ""
     st.session_state.answered = False
     new_question()
@@ -86,7 +90,7 @@ else:
     if not st.session_state.question:
         new_question()
 
-    # Question block
+    # Show question
     q = st.session_state.question
     verb_lt = q["verb"]
     pronoun_lt = q["pronoun"]
@@ -109,7 +113,6 @@ else:
     if st.session_state.answered:
         st.markdown(st.session_state.feedback)
         st.markdown(f"📊 Tavo taškai: **{st.session_state.score} / {(st.session_state.current + 1) * 10}**")
-
         if st.button("➡️ Kitas veiksmažodis"):
             st.session_state.current += 1
             new_question()
