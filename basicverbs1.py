@@ -1,98 +1,40 @@
 import streamlit as st
 import random
 
-st.set_page_config(page_title="🔤 Lithuanian Verb Conjugation Quiz", page_icon="🇱🇹", layout="centered")
+st.set_page_config(
+    page_title="🔤 Lithuanian Verb Conjugation Quiz",
+    page_icon="🇱🇹",
+    layout="centered"
+)
 
-# Lithuanian present tense conjugations for your verbs
+# Lithuanian present tense conjugations
 conjugations = {
-    "pradėti": {
-        "aš": "pradedu",
-        "tu": "pradedi",
-        "jis/ji": "pradeda",
-        "mes": "pradedame",
-        "jūs": "pradedate",
-        "jie/jos": "pradeda"
-    },
-    "daryti": {
-        "aš": "darau",
-        "tu": "darai",
-        "jis/ji": "daro",
-        "mes": "darome",
-        "jūs": "darote",
-        "jie/jos": "daro"
-    },
-    "veikti": {
-        "aš": "veikiu",
-        "tu": "veiki",
-        "jis/ji": "veikia",
-        "mes": "veikiame",
-        "jūs": "veikiate",
-        "jie/jos": "veikia"
-    },
-    "klausti": {
-        "aš": "klausiu",
-        "tu": "klausi",
-        "jis/ji": "klausia",
-        "mes": "klausiame",
-        "jūs": "klausiate",
-        "jie/jos": "klausia"
-    },
-    "elgtis": {
-        "aš": "elgiuosi",
-        "tu": "elgiesi",
-        "jis/ji": "elgiasi",
-        "mes": "elgiamės",
-        "jūs": "elgiatės",
-        "jie/jos": "elgiasi"
-    },
-    "aiškinti": {
-        "aš": "aiškinu",
-        "tu": "aiškini",
-        "jis/ji": "aiškina",
-        "mes": "aiškiname",
-        "jūs": "aiškinate",
-        "jie/jos": "aiškina"
-    },
-    "rašyti": {
-        "aš": "rašau",
-        "tu": "rašai",
-        "jis/ji": "rašo",
-        "mes": "rašome",
-        "jūs": "rašote",
-        "jie/jos": "rašo"
-    },
-    "suprasti": {
-        "aš": "suprantu",
-        "tu": "supranti",
-        "jis/ji": "supranta",
-        "mes": "suprantame",
-        "jūs": "suprantate",
-        "jie/jos": "supranta"
-    },
-    "būti": {
-        "aš": "esu",
-        "tu": "esi",
-        "jis/ji": "yra",
-        "mes": "esame",
-        "jūs": "esate",
-        "jie/jos": "yra"
-    },
-    "turėti": {
-        "aš": "turiu",
-        "tu": "turi",
-        "jis/ji": "turi",
-        "mes": "turime",
-        "jūs": "turite",
-        "jie/jos": "turi"
-    },
-    "žinoti": {
-        "aš": "žinau",
-        "tu": "žinai",
-        "jis/ji": "žino",
-        "mes": "žinome",
-        "jūs": "žinote",
-        "jie/jos": "žino"
-    },
+    "pradėti": {"aš": "pradedu", "tu": "pradedi", "jis/ji": "pradeda", "mes": "pradedame", "jūs": "pradedate", "jie/jos": "pradeda"},
+    "daryti": {"aš": "darau", "tu": "darai", "jis/ji": "daro", "mes": "darome", "jūs": "darote", "jie/jos": "daro"},
+    "veikti": {"aš": "veikiu", "tu": "veiki", "jis/ji": "veikia", "mes": "veikiame", "jūs": "veikiate", "jie/jos": "veikia"},
+    "klausti": {"aš": "klausiu", "tu": "klausi", "jis/ji": "klausia", "mes": "klausiame", "jūs": "klausiate", "jie/jos": "klausia"},
+    "elgtis": {"aš": "elgiuosi", "tu": "elgiesi", "jis/ji": "elgiasi", "mes": "elgiamės", "jūs": "elgiatės", "jie/jos": "elgiasi"},
+    "aiškinti": {"aš": "aiškinu", "tu": "aiškini", "jis/ji": "aiškina", "mes": "aiškiname", "jūs": "aiškinate", "jie/jos": "aiškina"},
+    "rašyti": {"aš": "rašau", "tu": "rašai", "jis/ji": "rašo", "mes": "rašome", "jūs": "rašote", "jie/jos": "rašo"},
+    "suprasti": {"aš": "suprantu", "tu": "supranti", "jis/ji": "supranta", "mes": "suprantame", "jūs": "suprantate", "jie/jos": "supranta"},
+    "būti": {"aš": "esu", "tu": "esi", "jis/ji": "yra", "mes": "esame", "jūs": "esate", "jie/jos": "yra"},
+    "turėti": {"aš": "turiu", "tu": "turi", "jis/ji": "turi", "mes": "turime", "jūs": "turite", "jie/jos": "turi"},
+    "žinoti": {"aš": "žinau", "tu": "žinai", "jis/ji": "žino", "mes": "žinome", "jūs": "žinote", "jie/jos": "žino"},
+}
+
+# Meanings for the infinitives
+meanings = {
+    "pradėti": "to start / to begin",
+    "daryti": "to do / to make",
+    "veikti": "to act / to operate",
+    "klausti": "to ask",
+    "elgtis": "to behave",
+    "aiškinti": "to explain",
+    "rašyti": "to write",
+    "suprasti": "to understand",
+    "būti": "to be",
+    "turėti": "to have",
+    "žinoti": "to know",
 }
 
 pronouns = ["aš", "tu", "jis/ji", "mes", "jūs", "jie/jos"]
@@ -108,26 +50,35 @@ if "score" not in st.session_state:
     st.session_state.feedback = ""
     st.session_state.show_feedback = False
     st.session_state.question = {}
+    st.session_state.answer = None
 
 def new_question():
     verb = random.choice(list(conjugations.keys()))
     pronoun = random.choice(pronouns)
     correct = conjugations[verb][pronoun]
 
-    options = set([correct])
-    all_forms = set(conjugations[verb].values())
-    while len(options) < 3:
-        options.add(random.choice(list(all_forms)))
-    options = list(options)
+    # Distractors from other verbs
+    distractors = set()
+    while len(distractors) < 2:
+        random_verb = random.choice(list(conjugations.keys()))
+        if random_verb == verb:
+            continue
+        distractor = conjugations[random_verb][pronoun]
+        if distractor != correct:
+            distractors.add(distractor)
+
+    options = list(distractors)
+    options.append(correct)
     random.shuffle(options)
 
     st.session_state.question = {
         "verb": verb,
+        "meaning": meanings[verb],
         "pronoun": pronoun,
         "correct": correct,
         "options": options
     }
-    st.session_state.selected_answer = None
+    st.session_state.answer = None  # ✅ clear selection
     st.session_state.show_feedback = False
     st.session_state.feedback = ""
 
@@ -145,22 +96,28 @@ st.markdown("<h1 style='color: red; text-align: center;'>🔤 Lithuanian Verb Co
 
 if not st.session_state.finished:
     q = st.session_state.question
-    st.markdown(f"### Veiksmažodis **„{q['verb']}“** su įvardžiu **„{q['pronoun']}“**", unsafe_allow_html=True)
+    st.markdown(
+        f"### Veiksmažodis **„{q['verb']}“** (*{q['meaning']}*) su įvardžiu **„{q['pronoun']}“**",
+        unsafe_allow_html=True
+    )
 
-    answer = st.radio("Pasirinkite teisingą formą:", q["options"], key="answer")
+    st.session_state.answer = st.radio(
+        "Pasirinkite teisingą formą:",
+        q["options"],
+        key=f"answer_{st.session_state.current}"
+    )
 
     if st.button("Patikrinti atsakymą"):
-        # Debug: show what is compared
-        st.write(f"Pasirinktas: '{answer}' | Teisingas: '{q['correct']}'")
-
-        # Safe compare
-        if answer.strip().lower() == q["correct"].strip().lower():
-            st.session_state.score += 10
-            st.session_state.correct_count += 1
-            st.session_state.feedback = "✅ Teisingai! Puiku! 😊"
+        if st.session_state.answer is None:
+            st.warning("Pasirinkite atsakymą prieš tikrinant.")
         else:
-            st.session_state.feedback = f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**"
-        st.session_state.show_feedback = True
+            if st.session_state.answer.strip().lower() == q["correct"].strip().lower():
+                st.session_state.score += 10
+                st.session_state.correct_count += 1
+                st.session_state.feedback = "✅ Teisingai! Puiku! 😊"
+            else:
+                st.session_state.feedback = f"❌ Neteisingai. Teisingas atsakymas: **{q['correct']}**"
+            st.session_state.show_feedback = True
 
     if st.session_state.show_feedback:
         if "✅" in st.session_state.feedback:
@@ -183,6 +140,7 @@ else:
     ✅ Teisingų atsakymų: **{st.session_state.correct_count} / {TOTAL_QUESTIONS}**  
     🏆 Surinkta taškų: **{st.session_state.score} / {TOTAL_QUESTIONS * 10}**
     """, unsafe_allow_html=True)
+
     if st.button("🔄 Žaisti iš naujo"):
         reset_game()
         st.experimental_rerun()
